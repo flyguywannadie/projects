@@ -9775,6 +9775,14 @@
     "Items": [
       {
         "RomFile": {
+          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/controller.nes",
+          "InnerFile": "",
+          "InnerFileIndex": 0
+        },
+        "PatchFile": null
+      },
+      {
+        "RomFile": {
           "Path": "C:\\Dev\\Retro\\NES\\projects\\src/sprites.nes",
           "InnerFile": "",
           "InnerFileIndex": 0
@@ -9877,8 +9885,8 @@
       "Height": 505
     },
     "WindowLocation": {
-      "X": 1465,
-      "Y": 449
+      "X": 1470,
+      "Y": 420
     },
     "WindowIsMaximized": false
   },

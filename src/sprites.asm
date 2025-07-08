@@ -213,6 +213,27 @@ remaining_loop:
     LDX oam
     INX
     STX oam
+    LDX oam + 4
+    INX
+    STX oam + 4
+    LDX oam + 8
+    INX
+    STX oam + 8
+    LDX oam + 12
+    INX
+    STX oam + 12
+    LDX oam + 16
+    INX
+    STX oam + 16
+    LDX oam + 20
+    INX
+    STX oam + 20
+    LDX oam + 24
+    INX
+    STX oam + 24
+    LDX oam + 28
+    INX
+    STX oam + 28
 
 
     ; Set OAM address to 0 — required before DMA or manual OAM writes
