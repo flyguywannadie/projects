@@ -357,6 +357,14 @@ not_left:
 .endproc
 
 .proc update_ball
+; calculate velocity
+  sec
+  lda ball_y
+  adc player_y
+  LSR
+  sta ball_dy
+
+
 ; now move our ball
   lda ball_y ; get the current Y
 	clc
@@ -388,6 +396,7 @@ not_left:
  		lda #$FF ; reverse direction (-1)
  		sta ball_dx
  NOT_HITRIGHT:
+
 
   rts
 .endproc
