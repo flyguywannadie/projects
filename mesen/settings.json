@@ -9783,6 +9783,14 @@
       },
       {
         "RomFile": {
+          "Path": "C:\\Dev\\Retro\\NES\\projects/src/game.nes",
+          "InnerFile": "",
+          "InnerFileIndex": 0
+        },
+        "PatchFile": null
+      },
+      {
+        "RomFile": {
           "Path": "C:\\Dev\\Retro\\NES\\projects\\src/game.nes",
           "InnerFile": "",
           "InnerFileIndex": 0

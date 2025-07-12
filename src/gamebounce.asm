@@ -6,6 +6,8 @@ SPRITE_1_ADDR = oam + 4
 SPRITE_2_ADDR = oam + 8
 SPRITE_3_ADDR = oam + 12
 SPRITE_BALL_ADDR = oam + 16
+SPRITE_TRAIL1_ADDR = oam + 20
+SPRITE_TRAIL2_ADDR = oam + 24
 
 ;*****************************************************************
 ; Define NES cartridge Header
@@ -66,6 +68,10 @@ ball_dx:                .res 1    ; Ball X velocity
 ball_dy:                .res 1    ; Ball Y velocity
 ball_x_accel:           .res 1    ; Ball Y acceleration
 ball_y_accel:           .res 1    ; Ball X acceleration
+trail1_x:               .res 1    ; Ball trail 1 X position
+trail1_y:               .res 1    ; Ball trail 1 Y position
+trail2_x:               .res 1    ; Ball trail 2 X position
+trail2_y:               .res 1    ; Ball trail 2 Y position
 score:                  .res 1    ; Score low byte
 scroll:                 .res 1    ; Scroll screen
 time:                   .res 1    ; Time (60hz = 60 FPS)
@@ -246,6 +252,10 @@ textloop:
   STA SPRITE_3_ADDR + SPRITE_OFFSET_TILE
   LDA #6
   STA SPRITE_BALL_ADDR + SPRITE_OFFSET_TILE
+  LDA #7
+  STA SPRITE_TRAIL1_ADDR + SPRITE_OFFSET_TILE
+  LDA #8
+  STA SPRITE_TRAIL2_ADDR + SPRITE_OFFSET_TILE
 
   LDA #120
   STA player_y
@@ -255,8 +265,13 @@ textloop:
 
   LDA #120
   STA ball_x
+  STA trail1_x
+  STA trail2_x
   LDA #128
   STA ball_y
+  STA trail1_y
+  STA trail2_y
+
 
   LDA #1
   STA ball_dx
@@ -306,6 +321,20 @@ textloop:
 
   LDA ball_x
   STA SPRITE_BALL_ADDR + SPRITE_OFFSET_X
+
+  ; SET BALL TRAIL POSITIONS
+  LDA trail1_y
+  STA SPRITE_TRAIL1_ADDR + SPRITE_OFFSET_Y
+
+  LDA trail1_x
+  STA SPRITE_TRAIL1_ADDR + SPRITE_OFFSET_X
+
+  LDA trail2_y
+  STA SPRITE_TRAIL2_ADDR + SPRITE_OFFSET_Y
+
+  LDA trail2_x
+  STA SPRITE_TRAIL2_ADDR + SPRITE_OFFSET_X
+
 
   DEC scroll
   LDA scroll
@@ -375,6 +404,34 @@ not_left:
   adc ball_x_accel
   sta ball_dx
 
+  LDA ball_dx
+  BMI clamp_neg
+  CMP #$07
+  BCC skip_clamp_x
+    LDA #$07
+    STA ball_dx
+    JMP skip_clamp_x
+
+clamp_neg:
+  LDA #$07
+  EOR #$FF
+  clc
+  adc #1
+  BCS skip_clamp_x
+    STA ball_dx
+
+skip_clamp_x:
+
+; set trails positions
+  lda trail1_y
+  sta trail2_y
+  lda trail1_x
+  sta trail2_x
+
+  lda ball_y
+  sta trail1_y
+  lda ball_x
+  sta trail1_x
 
 ; now move our ball
   lda ball_y ; get the current Y
