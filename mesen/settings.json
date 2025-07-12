@@ -8666,11 +8666,11 @@
       "MemoryType": "NesMemory",
       "WindowSize": {
         "Width": 760,
-        "Height": 550
+        "Height": 536
       },
       "WindowLocation": {
-        "X": 1083,
-        "Y": 227
+        "X": 115,
+        "Y": 366
       },
       "WindowIsMaximized": false
     },
@@ -9775,6 +9775,14 @@
     "Items": [
       {
         "RomFile": {
+          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/gamebounce.nes",
+          "InnerFile": "",
+          "InnerFileIndex": 0
+        },
+        "PatchFile": null
+      },
+      {
+        "RomFile": {
           "Path": "C:\\Dev\\Retro\\NES\\projects\\src/game.nes",
           "InnerFile": "",
           "InnerFileIndex": 0
@@ -9893,8 +9901,8 @@
       "Height": 505
     },
     "WindowLocation": {
-      "X": 1448,
-      "Y": 291
+      "X": 1670,
+      "Y": 349
     },
     "WindowIsMaximized": false
   },

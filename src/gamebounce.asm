@@ -64,6 +64,8 @@ ball_x:                 .res 1    ; Ball X position
 ball_y:                 .res 1    ; Ball Y position
 ball_dx:                .res 1    ; Ball X velocity
 ball_dy:                .res 1    ; Ball Y velocity
+ball_x_accel:           .res 1    ; Ball Y acceleration
+ball_y_accel:           .res 1    ; Ball X acceleration
 score:                  .res 1    ; Score low byte
 scroll:                 .res 1    ; Scroll screen
 time:                   .res 1    ; Time (60hz = 60 FPS)
@@ -251,15 +253,20 @@ textloop:
   LDA #128
   STA player_x
 
-  LDA #128
+  LDA #120
   STA ball_x
-  LDA #100
+  LDA #128
   STA ball_y
 
   LDA #1
   STA ball_dx
   LDA #1
   STA ball_dy
+
+  LDA #1
+  STA ball_y_accel
+  LDA #1
+  STA ball_x_accel
 
   RTS
 .endproc
@@ -360,8 +367,13 @@ not_left:
 ; calculate velocity
   lda ball_dy
   clc
-  adc #1
+  adc ball_y_accel
   sta ball_dy
+
+  lda ball_dx
+  clc
+  adc ball_x_accel
+  sta ball_dx
 
 
 ; now move our ball
@@ -369,39 +381,102 @@ not_left:
 	clc
 	adc ball_dy ; add the Y velocity
  	sta ball_y ; write the change
- 	cmp #0 ; have we hit the top border
- 	bne NOT_HITTOP
- 		lda #1 ; reverse direction
- 		sta ball_dy
+  lda #20
+ 	cmp ball_y ; have we hit the top border
+ 	bcc NOT_HITTOP
+    ; stop ball
+    LDA #21
+    STA ball_y
+
+    jsr reverse_ball_y_accel
  NOT_HITTOP:
  	lda ball_y
- 	cmp #210 ; have we hit the bottom border
+ 	cmp #230 ; have we hit the bottom border
  	bcc NOT_HITBOTTOM
-    LDA #209
+    ; stop ball
+    LDA #229
     STA ball_y
-    LDA ball_dy
-    EOR #$FF
-    CLC
-    ADC #1
-    STA ball_dy
+
+    jsr reverse_ball_y_accel
  NOT_HITBOTTOM:
  	lda ball_x ; get the current x
  	clc
  	adc ball_dx	; add the X velocity
  	sta ball_x
- 	cmp #0 ; have we hit the left border
- 	bne NOT_HITLEFT
- 		lda #1 ; reverse direction
- 		sta ball_dx
+  lda #20
+ 	cmp ball_x ; have we hit the left border
+ 	bcc NOT_HITLEFT
+ 		lda #21 ; reverse direction
+ 		sta ball_x
+
+    jsr reverse_ball_x_accel
  NOT_HITLEFT:
  	lda ball_x
- 	cmp #248 ; have we hot the right border
- 	bne NOT_HITRIGHT
- 		lda #$FF ; reverse direction (-1)
- 		sta ball_dx
+ 	cmp #230 ; have we hot the right border
+ 	bcc NOT_HITRIGHT
+ 		lda #229 ; reverse direction (-1)
+ 		sta ball_x
+
+    jsr reverse_ball_x_accel
  NOT_HITRIGHT:
 
 
+  rts
+.endproc
+
+.proc reverse_ball_y_accel
+  jsr get_random
+  LDA random_num
+  AND #$01
+  CMP #0
+  BNE keep_y_accel
+  ; stop the ball
+    LDA #0
+    STA ball_dy
+  ; reverse the acceleration
+    LDA ball_y_accel
+    EOR #$FF
+    CLC
+    ADC #1
+    STA ball_y_accel
+    JMP endfunc_y
+
+keep_y_accel:
+  LDA ball_dy
+  EOR #$FF
+  CLC
+  ADC #1
+  STA ball_dy
+
+endfunc_y:
+  rts
+.endproc
+
+.proc reverse_ball_x_accel
+  jsr get_random
+  LDA random_num
+  AND #$01
+  CMP #0
+  BNE keep_x_accel
+  ; stop the ball
+    LDA #0
+    STA ball_dx
+  ; reverse the acceleration
+    LDA ball_x_accel
+    EOR #$FF
+    CLC
+    ADC #1
+    STA ball_x_accel
+    JMP endfunc_x
+
+keep_x_accel:
+  LDA ball_dx
+  EOR #$FF
+  CLC
+  ADC #1
+  STA ball_dx
+
+endfunc_x:
   rts
 .endproc
 
@@ -536,6 +611,7 @@ get_random:
     ; Apply feedback: XOR with $39 (binary: 00111001)
     ; This represents taps at positions 5,4,3,0 after the shift
     EOR #$39           ; XOR with tap pattern
+    ADC time
 
 no_feedback:
     STA random_num      ; Store new random value
