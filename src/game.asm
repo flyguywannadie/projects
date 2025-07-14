@@ -358,11 +358,35 @@ not_left:
 
 .proc update_ball
 ; calculate velocity
+  lda ball_y
+  cmp player_y
+  bcc y_go_up
+    lda ball_dy
+    sec
+    SBC #1
+    JMP y_went_down
+y_go_up:
   lda ball_dy
   clc
   adc #1
+y_went_down:
   sta ball_dy
+y_skip:
 
+  lda ball_x
+  cmp player_x
+  bcc x_go_up
+    lda ball_dx
+    sec
+    SBC #1
+    JMP x_went_down
+x_go_up:
+  lda ball_dx
+  clc
+  adc #1
+x_went_down:
+  sta ball_dx
+x_skip:
 
 ; now move our ball
   lda ball_y ; get the current Y

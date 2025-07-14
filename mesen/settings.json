@@ -1494,16 +1494,16 @@
         "MouseButtons": null,
         "OekakidsButtons": null,
         "BandaiHypershotButtons": null,
-        "A": 0,
-        "B": 0,
+        "A": 55,
+        "B": 54,
         "X": 0,
         "Y": 0,
         "L": 0,
         "R": 0,
-        "Up": 0,
-        "Down": 0,
-        "Left": 0,
-        "Right": 0,
+        "Up": 68,
+        "Down": 58,
+        "Left": 64,
+        "Right": 52,
         "Start": 0,
         "Select": 0,
         "U": 0,
@@ -1599,7 +1599,7 @@
         "GenericKey1": 0
       },
       "TurboSpeed": 0,
-      "Type": "None"
+      "Type": "NesController"
     },
     "ExpPort": {
       "Mapping1": {
@@ -9775,6 +9775,14 @@
     "Items": [
       {
         "RomFile": {
+          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/game.nes",
+          "InnerFile": "",
+          "InnerFileIndex": 0
+        },
+        "PatchFile": null
+      },
+      {
+        "RomFile": {
           "Path": "C:\\Dev\\Retro\\NES\\projects\\src/gamebounce.nes",
           "InnerFile": "",
           "InnerFileIndex": 0
@@ -9783,7 +9791,7 @@
       },
       {
         "RomFile": {
-          "Path": "C:\\Dev\\Retro\\NES\\projects/src/game.nes",
+          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/pong.nes",
           "InnerFile": "",
           "InnerFileIndex": 0
         },
@@ -9791,7 +9799,7 @@
       },
       {
         "RomFile": {
-          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/game.nes",
+          "Path": "C:\\Dev\\Retro\\NES\\projects/src/game.nes",
           "InnerFile": "",
           "InnerFileIndex": 0
         },

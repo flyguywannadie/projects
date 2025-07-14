@@ -1,7 +1,7 @@
 Modules list:
 -------------
 gamebounce.o:
-    CODE              Offs=000000  Size=00027A  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=00027E  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=00042B  Align=00001  Fill=0000
     ZEROPAGE          Offs=000000  Size=00003A  Align=00001  Fill=0000
     HEADER            Offs=000000  Size=000008  Align=00001  Fill=0000
@@ -20,8 +20,8 @@ HEADER                000000  000007  000008  00001
 ZEROPAGE              000000  000039  00003A  00001
 OAM                   000200  0002FF  000100  00001
 STARTUP               008000  008037  000038  00001
-CODE                  008038  0082B1  00027A  00001
-RODATA                0082B2  0086DC  00042B  00001
+CODE                  008038  0082B5  00027E  00001
+RODATA                0082B6  0086E0  00042B  00001
 VECTORS               00FFFA  00FFFF  000006  00001
 
 

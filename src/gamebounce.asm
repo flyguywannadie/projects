@@ -537,6 +537,11 @@ endfunc_x:
   rts
 .endproc
 
+.proc process_ball_collision
+
+  rts
+.endproc
+
 ;******************************************************************************
 ; Procedure: main
 ;------------------------------------------------------------------------------
@@ -574,6 +579,9 @@ forever:
     JSR read_controller
     JSR update_player
     JSR update_ball
+
+    ; Process Collisions
+    JSR process_ball_collision
 
     ; Update sprite data (DMA transfer to PPU OAM)
     JSR update_sprites
