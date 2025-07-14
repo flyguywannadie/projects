@@ -388,6 +388,8 @@ x_went_down:
   sta ball_dx
 x_skip:
 
+
+
 ; now move our ball
   lda ball_y ; get the current Y
 	clc
