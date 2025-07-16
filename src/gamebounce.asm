@@ -60,10 +60,15 @@ controller_1_released:  .res 1    ; Check if released
 game_state:             .res 1    ; Current game state
 player_x:               .res 1    ; Player X position
 player_y:               .res 1    ; Player Y position
+player_right:           .res 1    ; Player right collision position
+player_bottom:          .res 1    ; Player bottom collision position
 player_vel_x:           .res 1    ; Player X velocity
 player_vel_y:           .res 1    ; Player Y velocity
+ball_max_speed:           .res 1    ; Ball Max Speed
 ball_x:                 .res 1    ; Ball X position
 ball_y:                 .res 1    ; Ball Y position
+ball_right:           .res 1    ; Ball right collision position
+ball_bottom:          .res 1    ; Ball bottom collision position
 ball_dx:                .res 1    ; Ball X velocity
 ball_dy:                .res 1    ; Ball Y velocity
 ball_x_accel:           .res 1    ; Ball Y acceleration
@@ -263,6 +268,13 @@ textloop:
   LDA #128
   STA player_x
 
+; set max speed of ball
+; 02 - slow speed to view collisions easier
+; 0A - medium speed for fun
+; 14 - fast
+  LDA #$02
+  STA ball_max_speed
+
   LDA #120
   STA ball_x
   STA trail1_x
@@ -271,7 +283,6 @@ textloop:
   STA ball_y
   STA trail1_y
   STA trail2_y
-
 
   LDA #1
   STA ball_dx
@@ -356,40 +367,52 @@ textloop:
 .endproc
 
 .proc update_player
-    LDA controller_1
-    AND #PAD_L
-    BEQ not_left
-      LDA player_x
-      ;DEX
-      SEC
-      SBC #$01
-      STA player_x
+  LDA controller_1
+  AND #PAD_L
+  BEQ not_left
+    LDA player_x
+    ;DEX
+    SEC
+    SBC #$01
+    STA player_x
 not_left:
-    LDA controller_1
-    AND #PAD_R
-    BEQ not_right
-      LDA player_x
-      CLC
-      ADC #$01
-      STA player_x
-  not_right:
-    LDA controller_1
-    AND #PAD_U
-    BEQ not_up
-      LDA player_y
-      SEC
-      SBC #$01
-      STA player_y
-  not_up:
-    LDA controller_1
-    AND #PAD_D
-    BEQ not_down
-      LDA player_y
-      CLC
-      ADC #$01
-      STA player_y
-  not_down:
-    RTS                       ; Return to caller
+  LDA controller_1
+  AND #PAD_R
+  BEQ not_right
+    LDA player_x
+    CLC
+    ADC #$01
+    STA player_x
+not_right:
+  LDA controller_1
+  AND #PAD_U
+  BEQ not_up
+    LDA player_y
+    SEC
+    SBC #$01
+    STA player_y
+not_up:
+  LDA controller_1
+  AND #PAD_D
+  BEQ not_down
+    LDA player_y
+    CLC
+    ADC #$01
+    STA player_y
+not_down:
+
+
+  lda player_y
+  clc
+  adc #16
+  sta player_bottom
+
+  lda player_x
+  clc
+  adc #16
+  sta player_right
+
+  RTS                       ; Return to caller
 .endproc
 
 .proc update_ball
@@ -399,21 +422,40 @@ not_left:
   adc ball_y_accel
   sta ball_dy
 
+  LDA ball_dy
+  BMI clamp_negy
+  CMP ball_max_speed
+  BCC skip_clamp_y
+    LDA ball_max_speed
+    STA ball_dy
+    JMP skip_clamp_y
+
+clamp_negy:
+  LDA ball_max_speed
+  EOR #$FF
+  clc
+  adc #1
+  BCS skip_clamp_y
+    STA ball_dy
+
+skip_clamp_y:
+
+
   lda ball_dx
   clc
   adc ball_x_accel
   sta ball_dx
 
   LDA ball_dx
-  BMI clamp_neg
-  CMP #$07
+  BMI clamp_negx
+  CMP ball_max_speed
   BCC skip_clamp_x
-    LDA #$07
+    LDA ball_max_speed
     STA ball_dx
     JMP skip_clamp_x
 
-clamp_neg:
-  LDA #$07
+clamp_negx:
+  LDA ball_max_speed
   EOR #$FF
   clc
   adc #1
@@ -421,6 +463,7 @@ clamp_neg:
     STA ball_dx
 
 skip_clamp_x:
+
 
 ; set trails positions
   lda trail1_y
@@ -445,7 +488,7 @@ skip_clamp_x:
     LDA #21
     STA ball_y
 
-    jsr reverse_ball_y_accel
+    jsr ball_accel_down
  NOT_HITTOP:
  	lda ball_y
  	cmp #230 ; have we hit the bottom border
@@ -454,7 +497,7 @@ skip_clamp_x:
     LDA #229
     STA ball_y
 
-    jsr reverse_ball_y_accel
+    jsr ball_accel_up
  NOT_HITBOTTOM:
  	lda ball_x ; get the current x
  	clc
@@ -466,7 +509,7 @@ skip_clamp_x:
  		lda #21 ; reverse direction
  		sta ball_x
 
-    jsr reverse_ball_x_accel
+    jsr ball_accel_right
  NOT_HITLEFT:
  	lda ball_x
  	cmp #230 ; have we hot the right border
@@ -474,42 +517,95 @@ skip_clamp_x:
  		lda #229 ; reverse direction (-1)
  		sta ball_x
 
-    jsr reverse_ball_x_accel
+    jsr ball_accel_left
  NOT_HITRIGHT:
 
+  lda ball_y
+  clc
+  adc #8
+  sta ball_bottom
+
+  lda ball_x
+  clc
+  adc #8
+  sta ball_right
 
   rts
 .endproc
 
-.proc reverse_ball_y_accel
+.proc ball_accel_down
   jsr get_random
   LDA random_num
   AND #$01
   CMP #0
-  BNE keep_y_accel
+  BNE keep_y_accel_up
   ; stop the ball
     LDA #0
     STA ball_dy
   ; reverse the acceleration
-    LDA ball_y_accel
-    EOR #$FF
-    CLC
-    ADC #1
+    LDA #1
     STA ball_y_accel
-    JMP endfunc_y
+    JMP endfunc_down
 
-keep_y_accel:
+keep_y_accel_up:
+  jsr bounce_y
+
+endfunc_down:
+  rts
+.endproc
+
+.proc ball_accel_up
+  jsr get_random
+  LDA random_num
+  AND #$01
+  CMP #0
+  BNE keep_y_accel_down
+  ; stop the ball
+    LDA #0
+    STA ball_dy
+  ; reverse the acceleration
+    LDA #$FF
+    STA ball_y_accel
+    JMP endfunc_up
+
+keep_y_accel_down:
+  jsr bounce_y
+
+endfunc_up:
+  rts
+.endproc
+
+.proc bounce_y
   LDA ball_dy
   EOR #$FF
   CLC
   ADC #1
   STA ball_dy
-
-endfunc_y:
   rts
 .endproc
 
-.proc reverse_ball_x_accel
+.proc ball_accel_left
+  jsr get_random
+  LDA random_num
+  AND #$01
+  CMP #0
+  BNE keep_x_accel_left
+  ; stop the ball
+    LDA #0
+    STA ball_dx
+  ; reverse the acceleration
+    LDA #$FF
+    STA ball_x_accel
+    JMP endfunc_left
+
+keep_x_accel_left:
+  jsr bounce_x
+
+endfunc_left:
+  rts
+.endproc
+
+.proc ball_accel_right
   jsr get_random
   LDA random_num
   AND #$01
@@ -519,26 +615,98 @@ endfunc_y:
     LDA #0
     STA ball_dx
   ; reverse the acceleration
-    LDA ball_x_accel
-    EOR #$FF
-    CLC
-    ADC #1
+    LDA #$1
     STA ball_x_accel
-    JMP endfunc_x
+    JMP endfunc_right
 
 keep_x_accel:
+  jsr bounce_x
+
+endfunc_right:
+  rts
+.endproc
+
+.proc bounce_x
   LDA ball_dx
   EOR #$FF
   CLC
   ADC #1
   STA ball_dx
-
-endfunc_x:
   rts
 .endproc
 
 .proc process_ball_collision
+; top collision
+  lda ball_bottom
+  cmp player_y
+  bcc nottop
+    lda player_bottom
+    sec
+    SBC #8
+    cmp ball_bottom
+    bcc nottop
+      lda ball_right
+      cmp player_x
+      bcc nottop
+        cmp player_right
+        bcs nottop
+          jsr ball_accel_up
 
+nottop:
+
+; left collision
+  lda ball_right
+  cmp player_x
+  bcc notleft
+    lda player_right
+    sec
+    SBC #8
+    cmp ball_right
+    bcc notleft
+      lda ball_bottom
+      cmp player_y
+      bcc notleft
+        cmp player_bottom
+        bcs notleft
+          jsr ball_accel_left
+
+notleft:
+
+; bottom collision
+  lda ball_y
+  cmp player_bottom
+  bcs notbottom
+    lda player_y
+    clc
+    adc #8
+    cmp ball_y
+    bcs notbottom
+      lda ball_right
+      cmp player_x
+      bcc notbottom
+        cmp player_right
+        bcs notbottom
+          jsr ball_accel_down
+
+notbottom:
+
+; right collision
+  lda ball_x
+  cmp player_right
+  bcs notright
+    lda player_x
+    clc
+    adc #8
+    cmp ball_x
+    bcs notright
+      lda ball_bottom
+      cmp player_y
+      bcc notright
+        cmp player_bottom
+        bcs notright
+          jsr ball_accel_right
+
+notright:
   rts
 .endproc
 
@@ -675,8 +843,8 @@ get_random:
 
     ; Apply feedback: XOR with $39 (binary: 00111001)
     ; This represents taps at positions 5,4,3,0 after the shift
-    EOR #$39           ; XOR with tap pattern
-    ADC time
+    ORA time          ; XOR with tap pattern
+    ;ADC time
 
 no_feedback:
     STA random_num      ; Store new random value

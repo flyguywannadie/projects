@@ -9775,7 +9775,7 @@
     "Items": [
       {
         "RomFile": {
-          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/game.nes",
+          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/gamebounce.nes",
           "InnerFile": "",
           "InnerFileIndex": 0
         },
@@ -9783,7 +9783,7 @@
       },
       {
         "RomFile": {
-          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/gamebounce.nes",
+          "Path": "C:\\Dev\\Retro\\NES\\projects\\src/game.nes",
           "InnerFile": "",
           "InnerFileIndex": 0
         },
